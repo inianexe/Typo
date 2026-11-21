@@ -19,6 +19,7 @@ Open the localhost address printed by the server (default: `http://127.0.0.1:417
 - With no candidate active, Tab is not intercepted by the page.
 - Add a personal word in Dictionary. Typo will stop suggesting that word as a completion and will not apply its known correction to it.
 - Change suggestion style, feature switches, or app exclusions; preferences are saved locally.
+- Use the top-bar theme control to switch between dark and light dashboard themes.
 
 The sandbox text remains in the open browser page and is never written to disk. The only persistent data is preferences and the personal word list in `.typo-data/` beside the app.
 
