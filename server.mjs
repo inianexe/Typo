@@ -18,6 +18,7 @@ const DEFAULTS = {
   completionEnabled: true,
   correctionEnabled: true,
   language: "English (US)",
+  theme: "dark",
   suggestionMode: "balanced",
   minimumPrefixLength: 2,
   maxCandidates: 1,
@@ -25,6 +26,8 @@ const DEFAULTS = {
   diagnosticsConsent: false,
   excludedApps: []
 };
+let settingsCache;
+let userWordsCache;
 
 async function readJson(path, fallback) {
   try { return JSON.parse(await readFile(path, "utf8")); }
@@ -40,13 +43,19 @@ async function writeJson(path, value) {
 }
 
 async function getSettings() {
-  const saved = await readJson(SETTINGS_FILE, {});
-  return { ...DEFAULTS, ...saved, schemaVersion: 1 };
+  if (!settingsCache) {
+    const saved = await readJson(SETTINGS_FILE, {});
+    settingsCache = { ...DEFAULTS, ...saved, schemaVersion: 1 };
+  }
+  return settingsCache;
 }
 
 async function getUserWords() {
-  const words = await readJson(WORDS_FILE, []);
-  return Array.isArray(words) ? words.filter(word => typeof word === "string") : [];
+  if (!userWordsCache) {
+    const words = await readJson(WORDS_FILE, []);
+    userWordsCache = Array.isArray(words) ? words.filter(word => typeof word === "string") : [];
+  }
+  return userWordsCache;
 }
 
 function send(res, status, payload, type = "application/json; charset=utf-8") {
@@ -122,6 +131,7 @@ const server = http.createServer(async (req, res) => {
         completionEnabled: Boolean(input.completionEnabled),
         correctionEnabled: Boolean(input.correctionEnabled),
         language: "English (US)",
+        theme: input.theme === "light" ? "light" : "dark",
         suggestionMode: ["fewer", "balanced", "more"].includes(input.suggestionMode) ? input.suggestionMode : "balanced",
         minimumPrefixLength: Math.max(1, Math.min(5, Number(input.minimumPrefixLength) || 2)),
         learningEnabled: Boolean(input.learningEnabled),
@@ -129,6 +139,7 @@ const server = http.createServer(async (req, res) => {
         excludedApps: Array.isArray(input.excludedApps) ? input.excludedApps.filter(id => typeof id === "string").slice(0, 100) : []
       };
       await writeJson(SETTINGS_FILE, next);
+      settingsCache = next;
       return send(res, 200, next);
     }
     if (req.method === "GET" && url.pathname === "/api/dictionary") {
@@ -140,13 +151,16 @@ const server = http.createServer(async (req, res) => {
       if (!validWord(word)) return send(res, 400, { error: "Enter a word using letters, apostrophes, or hyphens (up to 40 characters)." });
       const words = await getUserWords();
       if (!words.some(item => item.toLowerCase() === word.toLowerCase())) words.push(word);
-      await writeJson(WORDS_FILE, words.sort((a, b) => a.localeCompare(b)));
-      return send(res, 200, { userWords: words });
+      const nextWords = words.sort((a, b) => a.localeCompare(b));
+      await writeJson(WORDS_FILE, nextWords);
+      userWordsCache = nextWords;
+      return send(res, 200, { userWords: nextWords });
     }
     if (req.method === "DELETE" && url.pathname.startsWith("/api/dictionary/")) {
       const word = decodeURIComponent(url.pathname.slice("/api/dictionary/".length));
       const words = (await getUserWords()).filter(item => item !== word);
       await writeJson(WORDS_FILE, words);
+      userWordsCache = words;
       return send(res, 200, { userWords: words });
     }
     if (req.method === "POST" && url.pathname === "/api/suggest") {

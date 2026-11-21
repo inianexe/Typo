@@ -41,6 +41,18 @@ async function loadState() {
   state.settings = settings;
   state.status = status;
   state.words = dictionary.userWords;
+  applyTheme();
+}
+
+function applyTheme() {
+  const theme = state.settings?.theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = theme;
+  const button = document.querySelector("#theme-button");
+  if (button) {
+    button.textContent = theme === "dark" ? "☼" : "◐";
+    button.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} theme`);
+    button.title = `Switch to ${theme === "dark" ? "light" : "dark"} theme`;
+  }
 }
 
 function escapeHTML(value) {
@@ -184,6 +196,7 @@ async function updateSetting(key, value) {
   state.settings[key] = value;
   try {
     await persistSettings();
+    applyTheme();
     render();
     toast("Preference saved on this device");
   } catch (error) { toast(error.message); }
@@ -417,6 +430,10 @@ document.querySelector("#help-button").addEventListener("click", () => {
   document.body.append(backdrop);
   backdrop.addEventListener("click", event => { if (event.target === backdrop || event.target.closest("[data-close-modal]")) backdrop.remove(); });
   backdrop.querySelector("[data-close-modal]").focus();
+});
+
+document.querySelector("#theme-button").addEventListener("click", () => {
+  updateSetting("theme", state.settings.theme === "light" ? "dark" : "light");
 });
 
 loadState().then(() => render()).catch(error => {
