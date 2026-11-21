@@ -253,15 +253,31 @@ async function clearWords() {
   } catch (error) { toast(error.message); }
 }
 
-function editorText(editor) { return editor.innerText.replace(/\n$/, ""); }
+function editorText(editor) {
+  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+  let value = "";
+  let node;
+  while ((node = walker.nextNode())) {
+    if (!node.parentElement?.closest(".ghost")) value += node.nodeValue;
+  }
+  return value;
+}
 
 function caretOffset(editor) {
   const selection = getSelection();
   if (!selection?.rangeCount || !editor.contains(selection.anchorNode)) return editorText(editor).length;
-  const range = document.createRange();
-  range.selectNodeContents(editor);
-  range.setEnd(selection.anchorNode, selection.anchorOffset);
-  return range.toString().length;
+  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+  let offset = 0;
+  let node;
+  while ((node = walker.nextNode())) {
+    const isGhost = Boolean(node.parentElement?.closest(".ghost"));
+    if (node === selection.anchorNode) {
+      if (!isGhost) offset += selection.anchorOffset;
+      return offset;
+    }
+    if (!isGhost) offset += node.length;
+  }
+  return offset;
 }
 
 function placeCaret(editor, offset) {
@@ -300,6 +316,7 @@ function renderEditor(editor, text, cursor, suggestion) {
     const ghost = document.createElement("span");
     ghost.className = "ghost";
     ghost.setAttribute("aria-hidden", "true");
+    ghost.contentEditable = "false";
     ghost.textContent = suggestion.suffix;
     editor.append(ghost);
     addText(editor, text.slice(suggestion.end));
