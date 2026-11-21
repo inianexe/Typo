@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101410" />
+    <meta name="description" content="Typo desktop writing assistant preview and settings." />
+    <title>Typo — writing, one step ahead</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#overview" aria-label="Typo overview">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="brand-word">typo<span class="brand-period">.</span></span>
+        </a>
+        <div class="workspace-label">YOUR WORKSPACE</div>
+        <nav class="nav-list" aria-label="Main navigation">
+          <button class="nav-item active" data-view="overview"><span class="nav-icon">◫</span>Overview</button>
+          <button class="nav-item" data-view="typing"><span class="nav-icon">⌁</span>Typing</button>
+          <button class="nav-item" data-view="apps"><span class="nav-icon">▦</span>Apps</button>
+          <button class="nav-item" data-view="dictionary"><span class="nav-icon">⌕</span>Dictionary</button>
+          <button class="nav-item" data-view="privacy"><span class="nav-icon">◈</span>Privacy</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="local-card">
+            <span class="local-icon">⌂</span>
+            <div><strong>Private by design</strong><small>Everything stays on this device</small></div>
+            <span class="local-dot"></span>
+          </div>
+          <button class="profile-button" data-view="privacy">
+            <span class="avatar">IK</span><span class="profile-copy"><strong>Inian</strong><small>Local profile</small></span><span class="profile-menu">···</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-shell">
+        <header class="topbar">
+          <div class="breadcrumbs"><span>Typo</span><span class="crumb-slash">/</span><strong id="breadcrumb-current">Overview</strong></div>
+          <div class="topbar-actions">
+            <span class="preview-pill"><span class="pill-dot"></span>PREVIEW BUILD</span>
+            <button class="icon-button" id="help-button" aria-label="About this preview" title="About this preview">?</button>
+          </div>
+        </header>
+        <section id="view-root" class="view-root" aria-live="polite"></section>
+        <footer class="app-footer"><span>TYPO <span class="footer-dot">·</span> VERSION 0.1.0</span><span id="footer-status">LOCAL PREVIEW · NO INPUT METHOD CONNECTED</span></footer>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
