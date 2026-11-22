@@ -1,4 +1,5 @@
 name: Tanglish keyboard APK
+# Builds an unsigned debug APK for phone testing.
 on:
   push:
     branches: [codex/tanglish-keyboard-v1]
