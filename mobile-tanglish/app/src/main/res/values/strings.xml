@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Tanglish Rewrite</string>
+    <string name="ime_name">Tanglish Rewrite Keyboard</string>
+    <string name="ime_subtype">English (India)</string>
+</resources>
