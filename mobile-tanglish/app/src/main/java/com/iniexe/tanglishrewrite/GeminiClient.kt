@@ -37,7 +37,7 @@ Mark words/phrases that changed as changed and unchanged words as same. Input: $
                 val item = arr.getJSONObject(i)
                 segments += item.optString("text") to item.optString("kind", "same")
             }
-            Result(json.getString("rewrite"), segments)
+            return Result(json.getString("rewrite"), segments)
         } finally { conn.disconnect() }
     }
 }
